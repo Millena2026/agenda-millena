@@ -1,12 +1,10 @@
-FROM eclipse-temurin:17-jdk
-
+FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
+COPY .
+RUN mvn clean install -DskipTests
 
-COPY . .
-
-RUN chmod +x ./mvnw
-RUN ./mvnw clean install -DskipTests
-
+FROM eclipse-temurin:17-jre
+WORKDIR /app
+COPY --from=build /app/target/agenda-millena.jar app.jar
 EXPOSE 8081
-
-CMD ["java", "-jar", "target/agenda-millena.jar"]
+CMD ["java", "-jar", "app.jar"]
