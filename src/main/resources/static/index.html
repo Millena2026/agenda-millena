@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Agenda da Millena</title>
+    <style>
+        body { font-family: Arial; padding: 20px; background: #f5f5f5; }
+        h1 { color: #6a0dad; }
+        input, button { padding: 10px; margin: 5px; border-radius: 5px; border: 1px solid #ccc; }
+        button { background: #6a0dad; color: white; cursor: pointer; }
+        button:hover { background: #4b0082; }
+        .contato { background: white; padding: 10px; margin: 10px 0; border-radius: 5px; display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body>
+    <h1>📒 Minha Agenda</h1>
+
+    <h3>Adicionar Contato</h3>
+    <input type="text" id="nome" placeholder="Nome">
+    <input type="text" id="telefone" placeholder="Telefone">
+    <button onclick="adicionar()">Adicionar</button>
+
+    <h3>Contatos</h3>
+    <div id="lista"></div>
+
+    <script>
+        const api = '/contatos';
+
+        // Carregar contatos ao abrir
+        carregar();
+
+        function carregar() {
+            fetch(api)
+                .then(res => res.json())
+                .then(dados => {
+                    let html = '';
+                    dados.forEach(c => {
+                        html += `
+                        <div class="contato">
+                            <span><b>${c.nome}</b> - ${c.telefone}</span>
+                            <button onclick="deletar(${c.id})">Excluir</button>
+                        </div>`;
+                    });
+                    document.getElementById('lista').innerHTML = html;
+                });
+        }
+
+        function adicionar() {
+            const nome = document.getElementById('nome').value;
+            const telefone = document.getElementById('telefone').value;
+            
+            fetch(api, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({nome, telefone})
+            }).then(() => {
+                document.getElementById('nome').value = '';
+                document.getElementById('telefone').value = '';
+                carregar();
+            });
+        }
+
+        function deletar(id) {
+            fetch(api + '/' + id, {method: 'DELETE'})
+                .then(() => carregar());
+        }
+    </script>
+</body>
+</html>
